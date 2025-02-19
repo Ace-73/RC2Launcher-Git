@@ -19,7 +19,8 @@ namespace GameLauncher
         failed,
         downloadingGame,
         downloadingUpdate,
-        awaitingInput
+        awaitingInput,
+        downloadingCRF2Manager
     }
 
     /// <summary>
@@ -40,6 +41,7 @@ namespace GameLauncher
         private string chosenUserName;
         private string assistantPath;
         private string botDirectory;
+        private string CRF2ManagerExe;
 
         private LauncherStatus _status;
         internal LauncherStatus Status
@@ -64,6 +66,9 @@ namespace GameLauncher
                         break;
                     case LauncherStatus.awaitingInput:
                         PlayButton.Content = "Done";
+                        break;
+                    case LauncherStatus.downloadingCRF2Manager:
+                        PlayButton.Content = "Downloading CRF2 Manager";
                         break;
                     default:
                         break;
@@ -96,9 +101,71 @@ namespace GameLauncher
             tempZip = Path.Combine(rootPath, "temp");
             modZip = Path.Combine(rootPath, "BepInEx", "plugins");
             configFile = Path.Combine(rootPath, "BepInEx", "config", "RC2MPWE.cfg");
-            botDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Bobocraft 2 Community Starter Bots");
-            FAQFullText.Text = "Frequently Asked Questions:\r\n\r\n\tWhat is this? Is this the new Robocraft?\r\nThis game was originally under development by Freejam under the title ‘Robocraft 2’ until development was cancelled in early 2024. Freejam decided to change directions with their project, which is now under development as ‘Robocraft 2’ (often referred to as ‘The Robocraft 2 Rebuild’ by the community). When the original was cancelled, the community decided to preserve it and set up dedicated community servers so we could still play together. This launcher exists to help you play that original version of Robocraft 2, plus some community bug fixes and balance changes. If you are interested in the new version being currently developed by Freejam you can request access to the playtest on the Robocraft steam store page or visit Robocraft2.com for more information. \r\n\r\n\tHow do I use this thing?\r\nJust put it inside your main installation folder, “\\Robocraft 2” and run it, ask the discord if you are running into any problems and someone will help you. It will modify your vanilla Robocraft 2 install to a modded one and check for updates so you’ll have the latest community patch and will be able to connect to the community server. This launcher only works for windows users, check the discord for mac/linux information.\r\n\r\n\tHow do I install bots/precons/maps?\r\nThese are all stored inside your application data folder. To access it, follow these steps:\r\nPress the windows key, type ‘%appdata%’ and press enter\r\nNavigate to ‘\\AppData\\LocalLow\\Freejam\\Robocraft 2’\r\nBots are located in: Modded\\Machines\r\nMaps are located in: Mock\\Worlds\r\nPrecons are located in: Modded\\Precons\r\n\r\n\tCan I share this game on social media?\r\nYes, but you must make it clear that this is not an official Freejam project or endorsed by or affiliated with Freejam. This can be with a text disclaimer in the description, for example. Freejam has asked us to do this and we think it is quite reasonable and understandable, given that their new project is also called ‘Robocraft 2’ and they probably want to avoid confusion.\r\n\r\n\tCredits\r\nOriginal Game: Freejam\r\nMod/Server Build: NorbiPeti\r\nMain Server Host: shadowcrafter01\r\nBalance Changes: OXxzyDoOM\r\nDiscord Operator: Loading_._._.\r\nLauncher: Ace73Streaming\r\n";
+            CRF2ManagerExe = Path.Combine(launcherPath, "BOBOBloodhound.exe");
+            botDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "LocalLow", "Freejam", "Robocraft 2", "Modded", "Machines");
+            FAQFullText.Text = "Frequently Asked Questions:\r\n\tWhat is this? Is this the new Robocraft?\r\nThis game was originally under development by Freejam under the title ‘Robocraft 2’ until development was cancelled in early 2024. Freejam decided to change directions with their project, which is now under development as ‘Robocraft 2’ (often referred to as ‘The Robocraft 2 Rebuild’ by the community). When the original was cancelled, the community decided to preserve it and set up dedicated community servers so we could still play together. This launcher exists to help you play that original version of Robocraft 2, plus some community bug fixes and balance changes. If you are interested in the new version being currently developed by Freejam you can request access to the playtest on the Robocraft steam store page or visit Robocraft2.com for more information. \r\n\r\n\tHow do I use this thing?\r\nJust put it inside your main installation folder, “\\Robocraft 2” and run it, ask the discord if you are running into any problems and someone will help you. It will modify your vanilla Robocraft 2 install to a modded one and check for updates so you’ll have the latest community patch and will be able to connect to the community server. This launcher only works for windows users, check the discord for mac/linux information.\r\n\r\n\tHow do I install bots/precons/maps?\r\nThese are all stored inside your application data folder. To access it, follow these steps:\r\nPress the windows key, type ‘appdata’ and press enter\r\nNavigate to ‘\\AppData\\LocalLow\\Freejam\\Robocraft 2’\r\nBots are located in: Modded\\Machines\r\nMaps are located in: Mock\\Worlds\r\nPrecons are located in: Modded\\Precons\r\n\r\n\tCan I share this game on social media?\r\nYes, but you must make it clear that this is not an official Freejam project or endorsed by or affiliated with Freejam. This can be with a text disclaimer in the description, for example. Freejam has asked us to do this and we think it is quite reasonable and understandable, given that their new project is also called ‘Robocraft 2’ and they probably want to avoid confusion.\r\n\r\n\tCredits\r\nOriginal Game: Freejam\r\nMod/Server Build: NorbiPeti\r\nMain Server Host: shadowcrafter01\r\nBalance Changes: OXxzyDoOM\r\nDiscord Operator: Loading_._._.\r\nCRF2 Manager: Robocrafter Art (ARTGUK)\r\nLauncher: Ace73Streaming";
         }
+
+        private void OpenCRF2Manager()
+        {
+            if (File.Exists(CRF2ManagerExe) && Status == LauncherStatus.ready)
+            {
+                ProcessStartInfo CRF2ManagerProcess = new ProcessStartInfo(CRF2ManagerExe);
+                CRF2ManagerProcess.WorkingDirectory = rootPath;
+                Process.Start(CRF2ManagerProcess);
+            }
+            else if (Status != LauncherStatus.ready)
+            {
+                MessageBox.Show($"Please Update The Launcher Before Running The CRF2 Manager");
+            }
+            else if (!File.Exists(CRF2ManagerExe))
+            {
+                UpdateCRF2Manager(Version.zero);
+            }
+        }
+
+
+        private void UpdateCRF2Manager(Version _onlinelauncherVersion)
+        {
+            try
+            {
+                WebClient webClient = new WebClient();
+                Status = LauncherStatus.downloadingCRF2Manager;
+                _onlinelauncherVersion = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=16YSzW2p-mWDyS4249HdsNivMHvPU6uOu"));
+                webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCRF2ManagerCompletedCallback);
+                webClient.DownloadFileAsync(new Uri("https://drive.usercontent.google.com/u/0/uc?id=18mbNZXPfkHxUcLJFEvvbhZNi5ohWQome&export=download"), tempZip, _onlinelauncherVersion);
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.failed;
+                MessageBox.Show($"Error downloading CRF2 Manager: {ex}");
+            }
+        }
+
+        private void DownloadCRF2ManagerCompletedCallback(object sender, AsyncCompletedEventArgs e)
+        {
+            try
+            {
+                string onlineLauncherVersion = ((Version)e.UserState).ToString();
+                ZipFile.ExtractToDirectory(tempZip, assistantPath, true);
+                ProcessStartInfo CRF2ManagerProcess = new ProcessStartInfo(CRF2ManagerExe);
+                CRF2ManagerProcess.WorkingDirectory = rootPath;
+                Process.Start(CRF2ManagerProcess);
+                Status = LauncherStatus.ready;
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.failed;
+                MessageBox.Show($"Error installing CRF2 Manager: {ex}");
+            }
+        }
+
+
+
+
+
+
+
 
         private void CheckForLauncherUpdates()
         {
@@ -256,7 +323,7 @@ namespace GameLauncher
             {
                 ZipFile.ExtractToDirectory(tempZip, botDirectory, true);
                 File.Delete(tempZip);
-                MessageBox.Show("A collection of Community Starter Bots was placed your desktop, please check the readme file for instructions on how to use them, and welcome to Bobocraft 2!");
+                MessageBox.Show("Community Starter Bots installed to Robocraft 2 bot directory: \r\n\r\n" + botDirectory + "\r\n\r\nWelcome to Bobocraft 2!");
                 Status = LauncherStatus.downloadingUpdate;
                 CheckForUpdates();
             }
@@ -319,6 +386,10 @@ namespace GameLauncher
             {
                 CheckInputUsername();
             }
+        }
+        private void CRF2ManagerButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenCRF2Manager();
         }
 
         private void DiscordButton_Click(object sender, RoutedEventArgs e)

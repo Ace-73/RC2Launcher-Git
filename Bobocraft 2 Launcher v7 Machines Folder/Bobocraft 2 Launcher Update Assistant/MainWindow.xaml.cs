@@ -77,7 +77,6 @@ namespace Bobocraft_2_Launcher_Update_Assistant
             versionFile = Path.Combine(rootPath, "version.txt");
             launcherVersionFile = Path.Combine(rootPath, "launcherversion.txt");
             tempZip = Path.Combine(rootPath, "temp");
-            FAQFullText.Text = "Frequently Asked Questions:\r\n\r\n\tWhat is this? Is this the new Robocraft?\r\nThis game was originally under development by Freejam under the title ‘Robocraft 2’ until development was cancelled in early 2024. Freejam decided to change directions with their project, which is now under development as ‘Robocraft 2’ (often referred to as ‘The Robocraft 2 Rebuild’ by the community). When the original was cancelled, the community decided to preserve it and set up dedicated community servers so we could still play together. This launcher exists to help you play that original version of Robocraft 2, plus some community bug fixes and balance changes. If you are interested in the new version being currently developed by Freejam you can request access to the playtest on the Robocraft steam store page or visit Robocraft2.com for more information. \r\n\r\n\tHow do I use this thing?\r\nJust put it inside your main installation folder, “\\Robocraft 2” and run it, ask the discord if you are running into any problems and someone will help you. It will modify your vanilla Robocraft 2 install to a modded one and check for updates so you’ll have the latest community patch and will be able to connect to the community server. This launcher only works for windows users, check the discord for mac/linux information.\r\n\r\n\tHow do I install bots/precons/maps?\r\nThese are all stored inside your application data folder. To access it, follow these steps:\r\nPress the windows key, type ‘%appdata%’ and press enter\r\nNavigate to ‘\\AppData\\LocalLow\\Freejam\\Robocraft 2’\r\nBots are located in: Modded\\Machines\r\nMaps are located in: Mock\\Worlds\r\nPrecons are located in: Modded\\Precons\r\n\r\n\tCan I share this game on social media?\r\nYes, but you must make it clear that this is not an official Freejam project or endorsed by or affiliated with Freejam. This can be with a text disclaimer in the description, for example. Freejam has asked us to do this and we think it is quite reasonable and understandable, given that their new project is also called ‘Robocraft 2’ and they probably want to avoid confusion.\r\n\r\n\tCredits\r\nOriginal Game: Freejam\r\nMod/Server Build: NorbiPeti\r\nMain Server Host: shadowcrafter01\r\nBalance Changes: OXxzyDoOM\r\nDiscord Operator: Loading_._._.\r\nLauncher: Ace73Streaming\r\n";
         }
 
         private void CheckForLauncherUpdates()
@@ -154,21 +153,6 @@ namespace Bobocraft_2_Launcher_Update_Assistant
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
 
-        }
-
-        private void DiscordButton_Click(object sender, RoutedEventArgs e)
-        {
-            Process.Start(new ProcessStartInfo()
-            {
-                FileName = "https://discord.gg/3jRESN4Dv3",
-                UseShellExecute = true
-            });
-        }
-
-        private void FAQButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (FAQFullText.Visibility == Visibility.Visible) { FAQFullText.Visibility = Visibility.Hidden; }
-            else { FAQFullText.Visibility = Visibility.Visible; }
         }
 
 
