@@ -31,7 +31,6 @@ namespace Bobocraft_2_Launcher_Update_Assistant
         private string versionFile;
         private string launcherVersionFile;
         private string tempZip;
-        private string modZip;
         private string launcherExe;
         private string launcherPath;
         private string configFile;
@@ -88,7 +87,7 @@ namespace Bobocraft_2_Launcher_Update_Assistant
                 try
                 {
                     WebClient webClient = new WebClient();
-                    Version onlineLauncherVersion = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=16YSzW2p-mWDyS4249HdsNivMHvPU6uOu"));
+                    Version onlineLauncherVersion = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=1MnPRLYIwUUQ_QBPMol8TQmQkaISoTldD"));
 
                     if (onlineLauncherVersion.IsDifferentThan(localLauncherVersion))
                     {
@@ -119,7 +118,7 @@ namespace Bobocraft_2_Launcher_Update_Assistant
             {
                 WebClient webClient = new WebClient();
                 Status = LauncherStatus.downloadingUpdate;
-                _onlinelauncherVersion = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=16YSzW2p-mWDyS4249HdsNivMHvPU6uOu"));
+                _onlinelauncherVersion = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=1MnPRLYIwUUQ_QBPMol8TQmQkaISoTldD"));
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadLauncherCompletedCallback);
                 webClient.DownloadFileAsync(new Uri("https://cloud.norbipeti.eu/s/YWYN2mQL4p7ptWn/download/asd.zip"), tempZip, _onlinelauncherVersion);
             }
