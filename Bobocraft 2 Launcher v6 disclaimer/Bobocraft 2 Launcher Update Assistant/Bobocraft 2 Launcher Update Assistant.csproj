@@ -3,22 +3,29 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>Bobocraft_2_Launcher_Update_Assistant</RootNamespace>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>images\Icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="images\**" />
+    <EmbeddedResource Remove="images\**" />
+    <None Remove="images\**" />
+    <Page Remove="images\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="bobocraft 2 logo vector.png" />
-    <None Remove="images\Icon.ico" />
-    <None Remove="images\LauncherBackground.png" />
+    <None Remove="discord-mark-blue.png" />
     <None Remove="LauncherBackground.png" />
+    <None Remove="vector_dizzy.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="bobocraft 2 logo vector.png" />
-    <Resource Include="images\Icon.ico" />
-    <Resource Include="images\LauncherBackground.png" />
+    <Resource Include="discord-mark-blue.png" />
     <Resource Include="LauncherBackground.png" />
+    <Resource Include="vector_dizzy.png" />
   </ItemGroup>
 
 </Project>

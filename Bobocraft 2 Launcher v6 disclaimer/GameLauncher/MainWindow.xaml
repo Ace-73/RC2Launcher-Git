@@ -1,0 +1,33 @@
+﻿<Window x:Class="GameLauncher.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GameLauncher"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        ContentRendered="Window_ContentRendered"
+        Title="Bobocraft 2 Launcher" Height="576" Width="1080" ResizeMode="NoResize">
+    <Grid>
+        <Image Stretch="UniformToFill" Source="images/LauncherBackground.png"/>
+        <Image Margin="956,0,0,0" Source="/bobocraft 2 logo vector.png" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+        <TextBlock Name="VersionText" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="20" Background="#7F000000" Foreground="White" Margin="0, 0, 5, 25" Text="Mod Version:"/>
+        <TextBlock Name="LauncherVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="20" Background="#7F000000" Foreground="White" Margin="0, 0, 5, 25" Text="Launcher Version:"/>
+        <TextBlock Name="DisclaimerText" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="8" Background="#7F000000" Foreground="White" Margin="0,0,5,0" Text="This is a community project and is not affiliated with or endorsed by Freejam in any way. Modify your game files at your own risk. We are forever grateful to Freejam for making this great game and we welcome anyone who would like to join us!"/>
+        <Button Name ="DiscordButton" BorderThickness="0" Click ="DiscordButton_Click" Background="#00000000" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,160,7,0" Height="90" Width="100">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Width="90" Height="90">
+                <Image Source="/discord-mark-blue.png" HorizontalAlignment="Left" VerticalAlignment="Center" Width="90" Height="90" />
+            </StackPanel>
+        </Button>
+        <TextBlock Name="DiscordText" VerticalAlignment="Top" HorizontalAlignment="Right" FontSize="10" Background="#7F000000" Foreground="White" Margin="0,250,14,0" Text="Join Us On Discord!"/>
+        <Button Name ="FAQButton" BorderThickness="0" Click ="FAQButton_Click" Background="#00000000" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,263,7,0" Height="90" Width="100">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Width="90" Height="90">
+                <Image Source="/vector_dizzy.png" HorizontalAlignment="Left" VerticalAlignment="Center" Width="90" Height="90" />
+            </StackPanel>
+        </Button>
+        <TextBlock Name="FAQButtonText" VerticalAlignment="Top" HorizontalAlignment="Right" FontSize="8" Background="#7F000000" Foreground="White" Margin="0,348,7,0" Text="Frequently Asked Questions"/>
+        <TextBlock Name="FAQFullText" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" Background="#7F000000" Foreground="White" Text="Lorem ipsum" Height="460" Width="750" Margin="0,0,0,50" FontSize="10" Visibility="Hidden"/>
+        <Button Name="PlayButton" Content="Checking For Updates" Click="PlayButton_Click" Height="60" FontSize="28" FontWeight="Bold" Foreground="#DDFFFFFF" Margin="0, 0, 0, 15" VerticalAlignment="Bottom" HorizontalAlignment="Center" MinWidth="150" Background="#FFFF9700" Padding="10,1,10,1"/>
+        <TextBox x:Name ="mainWindowBox" Margin="300,200,300,256" FontSize="36" FontFamily="Bahnschrift SemiBold" Text="Enter Username" TextAlignment="Center" Background="White" VerticalAlignment="Center" Visibility="Hidden"/>
+    </Grid>
+</Window>
