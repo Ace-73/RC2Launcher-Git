@@ -39,6 +39,7 @@ namespace GameLauncher
         private bool isNewInstall;
         private string chosenUserName;
         private string assistantPath;
+        private string botDirectory;
 
         private LauncherStatus _status;
         internal LauncherStatus Status
@@ -95,6 +96,7 @@ namespace GameLauncher
             tempZip = Path.Combine(rootPath, "temp");
             modZip = Path.Combine(rootPath, "BepInEx", "plugins");
             configFile = Path.Combine(rootPath, "BepInEx", "config", "RC2MPWE.cfg");
+            botDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Bobocraft 2 Community Starter Bots");
         }
 
         private void CheckForLauncherUpdates()
@@ -231,6 +233,39 @@ namespace GameLauncher
             }
         }
 
+        private void InstallStarterBots(Version _zero)
+        {
+            try
+            {
+                WebClient webClient = new WebClient();
+                Status = LauncherStatus.downloadingUpdate;
+                webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadStarterBotsCompletedCallback);
+                webClient.DownloadFileAsync(new Uri("https://drive.google.com/uc?export=download&id=1DBX1tnU2rw7zVcgXFHAydG4wsbK2O-go"), tempZip, _zero);
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.failed;
+                MessageBox.Show($"Error downloading community starter bots: {ex}");
+            }
+        }
+
+        private void DownloadStarterBotsCompletedCallback(object sender, AsyncCompletedEventArgs e)
+        {
+            try
+            {
+                ZipFile.ExtractToDirectory(tempZip, botDirectory, true);
+                File.Delete(tempZip);
+                MessageBox.Show("A collection of Community Starter Bots was placed your desktop, please check the readme file for instructions on how to use them, and welcome to Bobocraft 2!");
+                Status = LauncherStatus.downloadingUpdate;
+                CheckForUpdates();
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.failed;
+                MessageBox.Show($"Error downloading community starter bots: {ex}");
+            }
+        }
+
         private void DownloadModCompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
             try
@@ -306,7 +341,7 @@ namespace GameLauncher
                 configString = configString.Replace("UserName = Mod_Player", "UserName = " + chosenUserName);
                 File.WriteAllText(configFile, configString);
                 mainWindowBox.Visibility = Visibility.Hidden;
-                CheckForUpdates();
+                InstallStarterBots(Version.zero);
             }
             else {
                 try
@@ -326,7 +361,7 @@ namespace GameLauncher
                     MessageBox.Show($"Error writing config file: {ex}");
                 }
                 mainWindowBox.Visibility = Visibility.Hidden;
-                CheckForUpdates();
+                InstallStarterBots(Version.zero);
             }
         }  
     }
