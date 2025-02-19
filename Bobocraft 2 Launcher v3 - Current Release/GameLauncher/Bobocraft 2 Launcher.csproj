@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>images\Icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="bobocraft 2 logo vector.png" />
+    <None Remove="images\Icon.ico" />
+    <None Remove="images\LauncherBackground.png" />
+    <None Remove="LauncherBackground.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="bobocraft 2 logo vector.png" />
+    <Resource Include="images\Icon.ico" />
+    <Resource Include="images\LauncherBackground.png" />
+    <Resource Include="LauncherBackground.png" />
+  </ItemGroup>
+
+</Project>
