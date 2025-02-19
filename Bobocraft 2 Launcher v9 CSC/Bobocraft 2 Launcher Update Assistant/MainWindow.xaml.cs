@@ -36,6 +36,8 @@ namespace Bobocraft_2_Launcher_Update_Assistant
         private string configFile;
         private bool isNewInstall;
         private string chosenUserName;
+        private string launcherVersionFileLink;
+        private string launcherZipLink;
 
         private LauncherStatus _status;
         internal LauncherStatus Status
@@ -76,7 +78,9 @@ namespace Bobocraft_2_Launcher_Update_Assistant
             versionFile = Path.Combine(rootPath, "version.txt");
             launcherVersionFile = Path.Combine(rootPath, "launcherversion.txt");
             tempZip = Path.Combine(rootPath, "temp");
-        }
+            launcherVersionFileLink = "https://drive.google.com/uc?export=download&id=1MnPRLYIwUUQ_QBPMol8TQmQkaISoTldD";
+            launcherZipLink = "https://cloud.norbipeti.eu/s/YWYN2mQL4p7ptWn/download/asd.zip";
+    }
 
         private void CheckForLauncherUpdates()
         {
@@ -87,7 +91,7 @@ namespace Bobocraft_2_Launcher_Update_Assistant
                 try
                 {
                     WebClient webClient = new WebClient();
-                    Version onlineLauncherVersion = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=1MnPRLYIwUUQ_QBPMol8TQmQkaISoTldD"));
+                    Version onlineLauncherVersion = new Version(webClient.DownloadString(launcherVersionFileLink));
 
                     if (onlineLauncherVersion.IsDifferentThan(localLauncherVersion))
                     {
@@ -118,9 +122,9 @@ namespace Bobocraft_2_Launcher_Update_Assistant
             {
                 WebClient webClient = new WebClient();
                 Status = LauncherStatus.downloadingUpdate;
-                _onlinelauncherVersion = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=1MnPRLYIwUUQ_QBPMol8TQmQkaISoTldD"));
+                _onlinelauncherVersion = new Version(webClient.DownloadString(launcherVersionFileLink));
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadLauncherCompletedCallback);
-                webClient.DownloadFileAsync(new Uri("https://cloud.norbipeti.eu/s/YWYN2mQL4p7ptWn/download/asd.zip"), tempZip, _onlinelauncherVersion);
+                webClient.DownloadFileAsync(new Uri(launcherZipLink), tempZip, _onlinelauncherVersion);
             }
             catch (Exception ex)
             {

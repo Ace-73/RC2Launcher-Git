@@ -10,6 +10,7 @@ using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Timers;
 
 namespace GameLauncher
 {
@@ -20,7 +21,8 @@ namespace GameLauncher
         downloadingGame,
         downloadingUpdate,
         awaitingInput,
-        downloadingCRF2Manager
+        downloadingCRF2Manager,
+        downloadingCSC
     }
 
     /// <summary>
@@ -43,6 +45,22 @@ namespace GameLauncher
         private string botDirectory;
         private string CRF2ManagerExe;
         private string CRF2ManagerVersionFile;
+        private string CSCExe;
+        private Timer RC2SessionTimer;
+        private DateTime NextRC2SessionDateTime;
+        private string launcherVersionFileLink;
+        private string launcherAssistantZipLink;
+        private string modVersionFileLink;
+        private string modInitInstallZipLink;
+        private string modUpdateZipLink;
+        private string CRF2ManagerVersionFileLink;
+        private string CRF2ManagerZipLink;
+        private string CSCZipLink;
+        private string StarterBotsZipLink;
+        private string NextSessionString;
+        private string NextSessionFile;
+        private string NextSessionFileLink;
+        
 
         private LauncherStatus _status;
         internal LauncherStatus Status
@@ -70,6 +88,9 @@ namespace GameLauncher
                         break;
                     case LauncherStatus.downloadingCRF2Manager:
                         PlayButton.Content = "Downloading CRF2 Manager";
+                        break;
+                    case LauncherStatus.downloadingCSC:
+                        PlayButton.Content = "Downloading CSC";
                         break;
                     default:
                         break;
@@ -103,10 +124,78 @@ namespace GameLauncher
             pluginPath = Path.Combine(rootPath, "BepInEx", "plugins");
             configFile = Path.Combine(rootPath, "BepInEx", "config", "RC2MPWE.cfg");
             CRF2ManagerExe = Path.Combine(launcherPath, "BOBOBloodhound.exe");
+            CSCExe = Path.Combine(launcherPath, "Connection Health Calculator.exe");
             CRF2ManagerVersionFile = Path.Combine(launcherPath, "crfmanagerversion.txt");
+            NextSessionFile = Path.Combine(launcherPath,"nextsessiondatetime.txt");
             botDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "LocalLow", "Freejam", "Robocraft 2", "Modded", "Machines");
             FAQFullText.Text = "Frequently Asked Questions:\r\n\tWhat is this? Is this the new Robocraft?\r\nThis game was originally under development by Freejam under the title ‘Robocraft 2’ until development was cancelled in early 2024. Freejam decided to change directions with their project, which is now under development as ‘Robocraft 2’ (often referred to as ‘The Robocraft 2 Rebuild’ by the community). When the original was cancelled, the community decided to preserve it and set up dedicated community servers so we could still play together. This launcher exists to help you play that original version of Robocraft 2, plus some community bug fixes and balance changes. If you are interested in the new version being currently developed by Freejam you can request access to the playtest on the Robocraft steam store page or visit Robocraft2.com for more information. \r\n\r\n\tHow do I use this thing?\r\nJust put it inside your main installation folder, “\\Robocraft 2” and run it, ask the discord if you are running into any problems and someone will help you. It will modify your vanilla Robocraft 2 install to a modded one and check for updates so you’ll have the latest community patch and will be able to connect to the community server. This launcher only works for windows users, check the discord for mac/linux information.\r\n\r\n\tHow do I install bots/precons/maps?\r\nThese are all stored inside your application data folder. To access it, follow these steps:\r\nPress the windows key, type ‘appdata’ and press enter\r\nNavigate to ‘\\AppData\\LocalLow\\Freejam\\Robocraft 2’\r\nBots are located in: Modded\\Machines\r\nMaps are located in: Mock\\Worlds\r\nPrecons are located in: Modded\\Precons\r\n\r\n\tCan I share this game on social media?\r\nYes, but you must make it clear that this is not an official Freejam project or endorsed by or affiliated with Freejam. This can be with a text disclaimer in the description, for example. Freejam has asked us to do this and we think it is quite reasonable and understandable, given that their new project is also called ‘Robocraft 2’ and they probably want to avoid confusion.\r\n\r\n\tCredits\r\nOriginal Game: Freejam\r\nMod/Server Build: NorbiPeti\r\nMain Server Host: shadowcrafter01\r\nBalance Changes: OXxzyDoOM\r\nDiscord Operator: Loading_._._.\r\nCRF2 Manager: Robocrafter Art (ARTGUK)\r\nLauncher: Ace73Streaming";
+            launcherVersionFileLink = "https://drive.google.com/uc?export=download&id=1MnPRLYIwUUQ_QBPMol8TQmQkaISoTldD";
+            launcherAssistantZipLink = "https://cloud.norbipeti.eu/s/ZwRmsKb3gLNKKNH/download/assist.zip";
+            modVersionFileLink = "https://cloud.norbipeti.eu/s/j6TFGJbbS5z9Dp4/download/version.txt";
+            modInitInstallZipLink = "https://cloud.norbipeti.eu/s/kZSSjFc2jqa22Hw/download/sus.zip";
+            modUpdateZipLink = "https://cloud.norbipeti.eu/s/yyk3LBaZsXa4GpR/download/RC2MPWE.zip";
+            StarterBotsZipLink = "https://drive.google.com/uc?export=download&id=1DBX1tnU2rw7zVcgXFHAydG4wsbK2O-go";
+            CRF2ManagerVersionFileLink = "https://drive.google.com/uc?export=download&id=1SS5O7LRtFwPi6XbBB4It-tHhIzJw-_qN";
+            CRF2ManagerZipLink = "https://drive.usercontent.google.com/u/0/uc?id=1ah4QN3HOj2nsCsHKxRkyTI_eKJIK3atb&export=download";
+            CSCZipLink = "https://cloud.norbipeti.eu/s/6dTzZyAbyXRwHc9/download/Connection%20Health%20Calculator.zip";
+            NextSessionFileLink = "https://drive.google.com/uc?export=download&id=1lMctvUExhyjw8FRrpiCKmfVnqNQMI7U7";
+            SetupTimer();
         }
+
+       private void SetupTimer()
+        {
+            PullSessionTimeFromLink();
+            RC2SessionTimer = new Timer(1000);
+            RC2SessionTimer.Elapsed += TimerElapsed;
+            RC2SessionTimer.Start();
+        }
+
+
+        
+        private void TimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                var timeLeft = NextRC2SessionDateTime - DateTime.Now;
+                if (timeLeft.TotalSeconds <= 0)
+                {
+                    PullSessionTimeFromLink();
+                    timeLeft = NextRC2SessionDateTime - DateTime.Now;
+                }
+                CountdownLabel.Content = $"{timeLeft.Days} days {timeLeft.Hours} hours {timeLeft.Minutes} minutes {timeLeft.Seconds} seconds";
+            });
+        }
+        private void PullSessionTimeFromLink()
+        {
+            var currentUTCtime = DateTime.UtcNow;
+            var Localtimezone = TimeZoneInfo.Local;
+            var UTCtimezone = TimeZoneInfo.Utc;
+            WebClient webClient = new WebClient();
+            NextSessionString = webClient.DownloadString(NextSessionFileLink);
+            NextRC2SessionDateTime = DateTime.Parse(NextSessionString);
+            if (NextRC2SessionDateTime > DateTime.UtcNow)
+            {
+                NextRC2SessionDateTime = TimeZoneInfo.ConvertTime(NextRC2SessionDateTime, Localtimezone);
+            }
+            else
+            {
+                CalculateDefaultSessionTime();
+            }
+        }
+
+
+        private void CalculateDefaultSessionTime()
+        {
+            var currentUTCtime = DateTime.UtcNow;
+            var daysUntilFriday = ((int)DayOfWeek.Friday - (int)currentUTCtime.DayOfWeek + 7) % 7;
+            var nextFriday = currentUTCtime.AddDays(daysUntilFriday);
+            var PSTtimezone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+            var Localtimezone = TimeZoneInfo.Local;
+            NextRC2SessionDateTime = new DateTime(nextFriday.Year, nextFriday.Month, nextFriday.Day, 9, 0, 0, DateTimeKind.Unspecified);
+            NextRC2SessionDateTime = TimeZoneInfo.ConvertTime(NextRC2SessionDateTime, PSTtimezone);
+            NextRC2SessionDateTime = TimeZoneInfo.ConvertTime(NextRC2SessionDateTime, Localtimezone);
+        }
+
 
         private void OpenCRF2Manager()
         {
@@ -126,6 +215,61 @@ namespace GameLauncher
             }
         }
 
+        private void OpenCSC()
+        {
+            if (File.Exists(CSCExe) && Status == LauncherStatus.ready)
+            {
+                ProcessStartInfo CSCCalcProcess = new ProcessStartInfo(CSCExe);
+                CSCCalcProcess.WorkingDirectory = rootPath;
+                Process.Start(CSCCalcProcess);
+            }
+            else if (Status != LauncherStatus.ready)
+            {
+                MessageBox.Show($"Please Update The Launcher Before Running The CRF2 Manager");
+            }
+            else if (!File.Exists(CSCExe))
+            {
+                DownloadCSC(Version.zero);
+            }
+        }
+
+
+        private void DownloadCSC(Version _onlineCSCCalcVersion)
+        {
+            try
+            {
+                WebClient webClient = new WebClient();
+                Status = LauncherStatus.downloadingCSC;
+                webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCSCCompletedCallback);
+                webClient.DownloadFileAsync(new Uri(CSCZipLink), tempZip, Version.zero);
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.failed;
+                MessageBox.Show($"Error downloading CSC Calculator: {ex}");
+            }
+        }
+
+        private void DownloadCSCCompletedCallback(object sender, AsyncCompletedEventArgs e)
+        {
+            try
+            {
+                ZipFile.ExtractToDirectory(tempZip, assistantPath, true);
+                ProcessStartInfo CSCProcess = new ProcessStartInfo(CSCExe);
+                CSCProcess.WorkingDirectory = rootPath;
+                Process.Start(CSCProcess);
+                Status = LauncherStatus.ready;
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.failed;
+                MessageBox.Show($"Error installing CSC Calculator: {ex}");
+            }
+        }
+
+
+
+
 
         private void UpdateCRF2Manager(Version _onlineCRF2ManagerVersion)
         {
@@ -133,9 +277,9 @@ namespace GameLauncher
             {
                 WebClient webClient = new WebClient();
                 Status = LauncherStatus.downloadingCRF2Manager;
-                _onlineCRF2ManagerVersion = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=1jQhH6nynSlrCCFw5STjc-evuNCSV7xsZ"));
+                _onlineCRF2ManagerVersion = new Version(webClient.DownloadString(CRF2ManagerVersionFileLink));
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadCRF2ManagerCompletedCallback);
-                webClient.DownloadFileAsync(new Uri("https://drive.usercontent.google.com/u/0/uc?id=18mbNZXPfkHxUcLJFEvvbhZNi5ohWQome&export=download"), tempZip, _onlineCRF2ManagerVersion);
+                webClient.DownloadFileAsync(new Uri(CRF2ManagerZipLink), tempZip, _onlineCRF2ManagerVersion);
             }
             catch (Exception ex)
             {
@@ -173,7 +317,7 @@ namespace GameLauncher
                 try
                 {
                     WebClient webClient = new WebClient();
-                    Version onlineCRF2ManagerVersion = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=1jQhH6nynSlrCCFw5STjc-evuNCSV7xsZ"));
+                    Version onlineCRF2ManagerVersion = new Version(webClient.DownloadString(CRF2ManagerVersionFileLink));
 
                     if (onlineCRF2ManagerVersion.IsDifferentThan(localCRF2ManagerVersion))
                     {
@@ -207,7 +351,7 @@ namespace GameLauncher
                 try
                 {
                     WebClient webClient = new WebClient();
-                    Version onlineLauncherVersion = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=1MnPRLYIwUUQ_QBPMol8TQmQkaISoTldD"));
+                    Version onlineLauncherVersion = new Version(webClient.DownloadString(launcherVersionFileLink));
 
                     if (onlineLauncherVersion.IsDifferentThan(localLauncherVersion))
                     {
@@ -240,9 +384,9 @@ namespace GameLauncher
             {
                 WebClient webClient = new WebClient();
                     Status = LauncherStatus.downloadingUpdate;
-                    _onlinelauncherVersion = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=1MnPRLYIwUUQ_QBPMol8TQmQkaISoTldD"));
+                    _onlinelauncherVersion = new Version(webClient.DownloadString(launcherVersionFileLink));
                     webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadLauncherAssistantCompletedCallback);
-                    webClient.DownloadFileAsync(new Uri("https://cloud.norbipeti.eu/s/ZwRmsKb3gLNKKNH/download/assist.zip"), tempZip, _onlinelauncherVersion);
+                    webClient.DownloadFileAsync(new Uri(launcherAssistantZipLink), tempZip, _onlinelauncherVersion);
             }
             catch (Exception ex)
             {
@@ -281,7 +425,7 @@ namespace GameLauncher
                 try
                 {
                     WebClient webClient = new WebClient();
-                    Version onlineVersion = new Version(webClient.DownloadString("https://cloud.norbipeti.eu/s/j6TFGJbbS5z9Dp4/download/version.txt"));
+                    Version onlineVersion = new Version(webClient.DownloadString(modVersionFileLink));
 
                     if (onlineVersion.IsDifferentThan(localVersion))
                     {
@@ -314,15 +458,15 @@ namespace GameLauncher
                     isNewInstall = false;
                     Status = LauncherStatus.downloadingUpdate;
                     webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadModCompletedCallback);
-                    webClient.DownloadFileAsync(new Uri("https://cloud.norbipeti.eu/s/yyk3LBaZsXa4GpR/download/RC2MPWE.zip"), tempZip, _onlineVersion);
+                    webClient.DownloadFileAsync(new Uri(modUpdateZipLink), tempZip, _onlineVersion);
                 }
                 else
                 {
                     isNewInstall = true;
                     Status = LauncherStatus.downloadingGame;
-                    _onlineVersion = new Version(webClient.DownloadString("https://cloud.norbipeti.eu/s/j6TFGJbbS5z9Dp4/download/version.txt"));
+                    _onlineVersion = new Version(webClient.DownloadString(modVersionFileLink));
                     webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadModCompletedCallback);
-                    webClient.DownloadFileAsync(new Uri("https://cloud.norbipeti.eu/s/kZSSjFc2jqa22Hw/download/sus.zip"), tempZip, _onlineVersion);
+                    webClient.DownloadFileAsync(new Uri(modInitInstallZipLink), tempZip, _onlineVersion);
                 }
             }
             catch (Exception ex)
@@ -339,7 +483,7 @@ namespace GameLauncher
                 WebClient webClient = new WebClient();
                 Status = LauncherStatus.downloadingUpdate;
                 webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadStarterBotsCompletedCallback);
-                webClient.DownloadFileAsync(new Uri("https://drive.google.com/uc?export=download&id=1DBX1tnU2rw7zVcgXFHAydG4wsbK2O-go"), tempZip, _zero);
+                webClient.DownloadFileAsync(new Uri(StarterBotsZipLink), tempZip, _zero);
             }
             catch (Exception ex)
             {
@@ -421,6 +565,11 @@ namespace GameLauncher
         private void CRF2ManagerButton_Click(object sender, RoutedEventArgs e)
         {
             CheckForCRFManagerUpdates();
+        }
+
+        private void CSCButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenCSC();
         }
 
         private void DiscordButton_Click(object sender, RoutedEventArgs e)

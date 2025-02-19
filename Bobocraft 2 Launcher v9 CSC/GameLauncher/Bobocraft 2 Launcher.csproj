@@ -14,6 +14,7 @@
     <None Remove="images\Icon.ico" />
     <None Remove="images\LauncherBackground.png" />
     <None Remove="LauncherBackground.png" />
+    <None Remove="shape_square.png" />
     <None Remove="vector_dizzy.png" />
   </ItemGroup>
 
@@ -24,6 +25,7 @@
     <Resource Include="images\Icon.ico" />
     <Resource Include="images\LauncherBackground.png" />
     <Resource Include="LauncherBackground.png" />
+    <Resource Include="shape_square.png" />
     <Resource Include="vector_dizzy.png" />
   </ItemGroup>
 
