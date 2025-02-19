@@ -29,13 +29,16 @@ namespace GameLauncher
     {
         private string rootPath;
         private string versionFile;
+        private string launcherVersionFile;
         private string tempZip;
         private string modZip;
         private string gameExe;
+        private string launcherAssistantExe;
         private string launcherPath;
         private string configFile;
         private bool isNewInstall;
         private string chosenUserName;
+        private string assistantPath;
 
         private LauncherStatus _status;
         internal LauncherStatus Status
@@ -71,6 +74,7 @@ namespace GameLauncher
         {
             InitializeComponent();
             launcherPath = Directory.GetCurrentDirectory();
+            assistantPath = launcherPath;
             gameExe = Path.Combine(launcherPath, "Robocraft 2.exe");
             if (File.Exists(gameExe))
             {
@@ -85,12 +89,86 @@ namespace GameLauncher
                     MessageBox.Show("Unable to find Robocraft 2 installation. Please make sure this file is placed inside the main /Robocraft 2 folder.");
                     }
             }
-            
+            launcherAssistantExe = Path.Combine(assistantPath, "Bobocraft 2 Launcher Update Assistant.exe");
             versionFile = Path.Combine(rootPath, "version.txt");
+            launcherVersionFile = Path.Combine(assistantPath, "launcherversion.txt");
             tempZip = Path.Combine(rootPath, "temp");
             modZip = Path.Combine(rootPath, "BepInEx", "plugins");
             configFile = Path.Combine(rootPath, "BepInEx", "config", "RC2MPWE.cfg");
         }
+
+        private void CheckForLauncherUpdates()
+        {
+            if (File.Exists(launcherVersionFile))
+            {
+                Version localLauncherVersion = new Version(File.ReadAllText(launcherVersionFile));
+                LauncherVersionText.Text = localLauncherVersion.ToString();
+                try
+                {
+                    WebClient webClient = new WebClient();
+                    Version onlineLauncherVersion = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=16YSzW2p-mWDyS4249HdsNivMHvPU6uOu"));
+
+                    if (onlineLauncherVersion.IsDifferentThan(localLauncherVersion))
+                    {
+                        UpdateLauncherAssistant(onlineLauncherVersion);
+                    }
+                    else
+                    {
+                        if (File.Exists(launcherAssistantExe)) 
+                        { 
+                            File.Delete(launcherAssistantExe); 
+                        }
+                        CheckForUpdates();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Status = LauncherStatus.failed;
+                    MessageBox.Show($"Error checking for launcher updates: {ex}");
+                }
+            }
+            else
+            {
+                UpdateLauncherAssistant(Version.zero);
+            }
+        }
+
+        private void UpdateLauncherAssistant(Version _onlinelauncherVersion)
+        {
+            try
+            {
+                WebClient webClient = new WebClient();
+                    Status = LauncherStatus.downloadingUpdate;
+                    _onlinelauncherVersion = new Version(webClient.DownloadString("https://drive.google.com/uc?export=download&id=16YSzW2p-mWDyS4249HdsNivMHvPU6uOu"));
+                    webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadLauncherAssistantCompletedCallback);
+                    webClient.DownloadFileAsync(new Uri("https://cloud.norbipeti.eu/s/ZwRmsKb3gLNKKNH/download/assist.zip"), tempZip, _onlinelauncherVersion);
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.failed;
+                MessageBox.Show($"Error downloading launcher update: {ex}");
+            }
+        }
+
+        private void DownloadLauncherAssistantCompletedCallback(object sender, AsyncCompletedEventArgs e)
+        {
+            try
+            {
+                string onlineLauncherVersion = ((Version)e.UserState).ToString();
+                ZipFile.ExtractToDirectory(tempZip, assistantPath, true);
+                ProcessStartInfo process = new ProcessStartInfo(@launcherAssistantExe);
+                File.Delete(tempZip);
+                Process.Start(process);
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.failed;
+                MessageBox.Show($"Error updating launcher assistant: {ex}");
+            }
+        }
+
+
 
         private void CheckForUpdates()
         {
@@ -106,7 +184,7 @@ namespace GameLauncher
 
                     if (onlineVersion.IsDifferentThan(localVersion))
                     {
-                        InstallGameFiles(true, onlineVersion);
+                        InstallModFiles(true, onlineVersion);
                     }
                     else
                     {
@@ -121,11 +199,11 @@ namespace GameLauncher
             }
             else
             {
-                InstallGameFiles(false, Version.zero);
+                InstallModFiles(false, Version.zero);
             }
         }
 
-        private void InstallGameFiles(bool _isUpdate, Version _onlineVersion)
+        private void InstallModFiles(bool _isUpdate, Version _onlineVersion)
         {
             try
             {
@@ -134,7 +212,7 @@ namespace GameLauncher
                 {
                     isNewInstall = false;
                     Status = LauncherStatus.downloadingUpdate;
-                    webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadGameCompletedCallback);
+                    webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadModCompletedCallback);
                     webClient.DownloadFileAsync(new Uri("https://cloud.norbipeti.eu/s/yyk3LBaZsXa4GpR/download/RC2MPWE.zip"), tempZip, _onlineVersion);
                 }
                 else
@@ -142,18 +220,18 @@ namespace GameLauncher
                     isNewInstall = true;
                     Status = LauncherStatus.downloadingGame;
                     _onlineVersion = new Version(webClient.DownloadString("https://cloud.norbipeti.eu/s/j6TFGJbbS5z9Dp4/download/version.txt"));
-                    webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadGameCompletedCallback);
+                    webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadModCompletedCallback);
                     webClient.DownloadFileAsync(new Uri("https://cloud.norbipeti.eu/s/kZSSjFc2jqa22Hw/download/sus.zip"), tempZip, _onlineVersion);
                 }
             }
             catch (Exception ex)
             {
                 Status = LauncherStatus.failed;
-                MessageBox.Show($"Error installing mod files: {ex}");
+                MessageBox.Show($"Error downloading mod files: {ex}");
             }
         }
 
-        private void DownloadGameCompletedCallback(object sender, AsyncCompletedEventArgs e)
+        private void DownloadModCompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
             try
             {
@@ -179,13 +257,13 @@ namespace GameLauncher
             catch (Exception ex)
             {
                 Status = LauncherStatus.failed;
-                MessageBox.Show($"Error finishing download: {ex}");
+                MessageBox.Show($"Error installing/updating mod: {ex}");
             }
         }
 
         private void Window_ContentRendered(object sender, EventArgs e)
         {
-            CheckForUpdates();
+            CheckForLauncherUpdates();
         }
 
         private void PlayButton_Click(object sender, RoutedEventArgs e)

@@ -11,6 +11,7 @@
     <Grid>
         <Image Stretch="UniformToFill" Source="images/LauncherBackground.png"/>
         <TextBlock Name="VersionText" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="20" Foreground="White" Margin="0, 0, 5, 0"/>
+        <TextBlock Name="LauncherVersionText" VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="20" Foreground="White" Margin="0, 0, 5, 0"/>
         <Button Name="PlayButton" Content="Checking For Updates" Click="PlayButton_Click" Height="60" FontSize="28" FontWeight="Bold" Foreground="#DDFFFFFF" Margin="0, 0, 0, 15" VerticalAlignment="Bottom" HorizontalAlignment="Center" MinWidth="150" Background="#FFFF9700" Padding="10,1,10,1"/>
         <TextBox x:Name ="mainWindowBox" Margin="300,200,300,256" FontSize="36" FontFamily="Bahnschrift SemiBold" Text="Enter Username" TextAlignment="Center" Background="White" VerticalAlignment="Center" Visibility="Hidden"/>
         <Image Margin="792,503,10,0" Source="/bobocraft 2 logo vector.png"/>

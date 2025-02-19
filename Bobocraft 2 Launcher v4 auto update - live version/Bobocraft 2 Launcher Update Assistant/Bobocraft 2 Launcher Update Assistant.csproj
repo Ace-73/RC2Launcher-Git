@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>Bobocraft_2_Launcher_Update_Assistant</RootNamespace>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="images\**" />
+    <EmbeddedResource Remove="images\**" />
+    <None Remove="images\**" />
+    <Page Remove="images\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="bobocraft 2 logo vector.png" />
+    <None Remove="LauncherBackground.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="bobocraft 2 logo vector.png" />
+    <Resource Include="LauncherBackground.png" />
+  </ItemGroup>
+
+</Project>
