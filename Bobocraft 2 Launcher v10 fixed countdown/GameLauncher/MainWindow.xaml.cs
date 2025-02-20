@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Timers;
+using System.Globalization;
 
 namespace GameLauncher
 {
@@ -172,7 +173,10 @@ namespace GameLauncher
             var UTCtimezone = TimeZoneInfo.Utc;
             WebClient webClient = new WebClient();
             NextSessionString = webClient.DownloadString(NextSessionFileLink);
-            NextRC2SessionDateTime = DateTime.Parse(NextSessionString);
+            string format = "M/d/yyyy h:mm:ss tt";
+            CultureInfo culture = CultureInfo.InvariantCulture;
+            DateTime.TryParseExact(NextSessionString, format, culture, DateTimeStyles.None, out DateTime parsedDate);
+            NextRC2SessionDateTime = parsedDate;
             if (NextRC2SessionDateTime > DateTime.UtcNow)
             {
                 NextRC2SessionDateTime = TimeZoneInfo.ConvertTime(NextRC2SessionDateTime, Localtimezone);
@@ -190,10 +194,9 @@ namespace GameLauncher
             var daysUntilFriday = ((int)DayOfWeek.Friday - (int)currentUTCtime.DayOfWeek + 7) % 7;
             var nextFriday = currentUTCtime.AddDays(daysUntilFriday);
             var PSTtimezone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
-            var Localtimezone = TimeZoneInfo.Local;
-            NextRC2SessionDateTime = new DateTime(nextFriday.Year, nextFriday.Month, nextFriday.Day, 9, 0, 0, DateTimeKind.Unspecified);
-            NextRC2SessionDateTime = TimeZoneInfo.ConvertTime(NextRC2SessionDateTime, PSTtimezone);
-            NextRC2SessionDateTime = TimeZoneInfo.ConvertTime(NextRC2SessionDateTime, Localtimezone);
+            var nextFridayPST = new DateTime(nextFriday.Year, nextFriday.Month, nextFriday.Day, 9, 0, 0, DateTimeKind.Unspecified);
+            var nextFridayUTC = TimeZoneInfo.ConvertTimeToUtc(nextFridayPST, PSTtimezone);
+            NextRC2SessionDateTime = TimeZoneInfo.ConvertTimeFromUtc(nextFridayUTC, TimeZoneInfo.Local);
         }
 
 
