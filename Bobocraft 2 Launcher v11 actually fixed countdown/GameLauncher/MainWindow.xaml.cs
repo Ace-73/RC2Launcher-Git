@@ -160,17 +160,14 @@ namespace GameLauncher
                 var timeLeft = NextRC2SessionDateTime - DateTime.Now;
                 if (timeLeft.TotalSeconds <= 0)
                 {
-                    PullSessionTimeFromLink();
-                    timeLeft = NextRC2SessionDateTime - DateTime.Now;
+                    CountdownLabel.Content = "ROBOCRAFT SESSION TODAY!";
                 }
-                CountdownLabel.Content = $"{timeLeft.Days} days {timeLeft.Hours} hours {timeLeft.Minutes} minutes {timeLeft.Seconds} seconds";
+                else { CountdownLabel.Content = $"{timeLeft.Days} days {timeLeft.Hours} hours {timeLeft.Minutes} minutes {timeLeft.Seconds} seconds"; }
             });
         }
         private void PullSessionTimeFromLink()
         {
-            var currentUTCtime = DateTime.UtcNow;
             var Localtimezone = TimeZoneInfo.Local;
-            var UTCtimezone = TimeZoneInfo.Utc;
             WebClient webClient = new WebClient();
             NextSessionString = webClient.DownloadString(NextSessionFileLink);
             string format = "M/d/yyyy h:mm:ss tt";
