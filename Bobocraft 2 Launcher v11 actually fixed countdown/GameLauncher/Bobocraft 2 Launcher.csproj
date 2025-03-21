@@ -15,7 +15,12 @@
     <None Remove="images\LauncherBackground.png" />
     <None Remove="LauncherBackground.png" />
     <None Remove="shape_square.png" />
+    <None Remove="user-1808597_1280.png" />
     <None Remove="vector_dizzy.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,6 +31,7 @@
     <Resource Include="images\LauncherBackground.png" />
     <Resource Include="LauncherBackground.png" />
     <Resource Include="shape_square.png" />
+    <Resource Include="user-1808597_1280.png" />
     <Resource Include="vector_dizzy.png" />
   </ItemGroup>
 

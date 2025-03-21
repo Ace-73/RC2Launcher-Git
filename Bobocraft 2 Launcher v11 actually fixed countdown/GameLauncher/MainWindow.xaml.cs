@@ -12,6 +12,10 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Timers;
 using System.Globalization;
+using System.Text.Json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Windows.Media;
 
 namespace GameLauncher
 {
@@ -61,7 +65,11 @@ namespace GameLauncher
         private string NextSessionString;
         private string NextSessionFile;
         private string NextSessionFileLink;
-        
+        private string NorbiServerInfoLink;
+        private string ServerInfoJson;
+        private string ServerInfoString;
+        private int PlayerCount;
+
 
         private LauncherStatus _status;
         internal LauncherStatus Status
@@ -140,7 +148,10 @@ namespace GameLauncher
             CRF2ManagerZipLink = "https://drive.usercontent.google.com/u/0/uc?id=1ah4QN3HOj2nsCsHKxRkyTI_eKJIK3atb&export=download";
             CSCZipLink = "https://cloud.norbipeti.eu/s/6dTzZyAbyXRwHc9/download/Connection%20Health%20Calculator.zip";
             NextSessionFileLink = "https://drive.google.com/uc?export=download&id=1lMctvUExhyjw8FRrpiCKmfVnqNQMI7U7";
+            NorbiServerInfoLink = "https://norbipeti.eu/rc2matchmaking/servers";
+            PlayerCount = 0;
             SetupTimer();
+            CheckPlayerCount();
         }
 
        private void SetupTimer()
@@ -163,6 +174,7 @@ namespace GameLauncher
                     CountdownLabel.Content = "ROBOCRAFT SESSION TODAY!";
                 }
                 else { CountdownLabel.Content = $"{timeLeft.Days} days {timeLeft.Hours} hours {timeLeft.Minutes} minutes {timeLeft.Seconds} seconds"; }
+                CheckPlayerCount();
             });
         }
         private void PullSessionTimeFromLink()
@@ -306,6 +318,52 @@ namespace GameLauncher
                 MessageBox.Show($"Error installing CRF2 Manager: {ex}");
             }
         }
+
+
+        private void CheckPlayerCount()
+        {
+            try
+            {
+                WebClient webClient = new WebClient();
+                webClient.Headers.Add("Authorization", "TlBDQVRSQzI=");
+                ServerInfoJson = webClient.DownloadString(NorbiServerInfoLink);
+                JArray _ServerArray = new JArray();
+                _ServerArray = JArray.Parse(ServerInfoJson);
+                PlayerCount = 0;
+                for(int i = 0; i < _ServerArray.Count; i++)
+                {
+                    var server = _ServerArray[i];
+                    var onlinePlayers = server["onlinePlayers"];
+                    int PlayersInt = 0;
+                    int.TryParse(onlinePlayers.ToString(), out PlayersInt);
+                    PlayerCount += PlayersInt;
+                }
+                if (PlayerCount > 0)
+                {
+                    CraftersOnlineNumber.Text = PlayerCount.ToString();
+                    //CraftersOnlineNumber.Foreground = new SolidColorBrush(Colors.LightGreen);
+                    CraftersOnlineNumber.Visibility = Visibility.Visible;
+                    CraftersOnlineText.Visibility = Visibility.Visible;
+                    OnlineUserpfp.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    CraftersOnlineNumber.Visibility = Visibility.Hidden;
+                    CraftersOnlineText.Visibility = Visibility.Hidden;
+                    OnlineUserpfp.Visibility = Visibility.Hidden;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.failed;
+                MessageBox.Show($"Error checking for server info: {ex}");
+            }
+        }
+
+
+
+
 
 
 
@@ -577,6 +635,15 @@ namespace GameLauncher
             Process.Start(new ProcessStartInfo()
             {
                 FileName = "https://discord.gg/3jRESN4Dv3",
+                UseShellExecute = true
+            });
+        }
+
+        private void DiscordButton_ClickLFP(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo()
+            {
+                FileName = "https://discord.gg/4szuSwTURA",
                 UseShellExecute = true
             });
         }
