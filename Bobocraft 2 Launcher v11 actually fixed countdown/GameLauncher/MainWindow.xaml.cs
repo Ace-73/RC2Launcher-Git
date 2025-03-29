@@ -16,6 +16,7 @@ using System.Text.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Windows.Media;
+using System.Threading.Tasks;
 
 namespace GameLauncher
 {
@@ -66,9 +67,14 @@ namespace GameLauncher
         private string NextSessionFile;
         private string NextSessionFileLink;
         private string NorbiServerInfoLink;
+        private string NorbiGameInfoLink;
         private string ServerInfoJson;
         private string ServerInfoString;
+        private string GameInfoJson;
+        private string GameInfoString;
         private int PlayerCount;
+        private int BuilderCount;
+        private bool ErrorCheckingPlayerCounts;
 
 
         private LauncherStatus _status;
@@ -149,9 +155,14 @@ namespace GameLauncher
             CSCZipLink = "https://cloud.norbipeti.eu/s/6dTzZyAbyXRwHc9/download/Connection%20Health%20Calculator.zip";
             NextSessionFileLink = "https://drive.google.com/uc?export=download&id=1lMctvUExhyjw8FRrpiCKmfVnqNQMI7U7";
             NorbiServerInfoLink = "https://norbipeti.eu/rc2matchmaking/servers";
+            NorbiGameInfoLink = "https://norbipeti.eu/rc2matchmaking/custom-apps/info";
             PlayerCount = 0;
-            SetupTimer();
+            BuilderCount = 0;
+            ErrorCheckingPlayerCounts = false;
+            
             CheckPlayerCount();
+            CheckBuilderCount();
+            SetupTimer();
         }
 
        private void SetupTimer()
@@ -174,9 +185,92 @@ namespace GameLauncher
                     CountdownLabel.Content = "ROBOCRAFT SESSION TODAY!";
                 }
                 else { CountdownLabel.Content = $"{timeLeft.Days} days {timeLeft.Hours} hours {timeLeft.Minutes} minutes {timeLeft.Seconds} seconds"; }
-                CheckPlayerCount();
+                if (ErrorCheckingPlayerCounts == false && Status == LauncherStatus.ready) { CheckPlayerCount(); CheckBuilderCount(); }
+                //CheckPlayerCount();
             });
         }
+
+        private async Task CheckPlayerCount()
+        {
+            try
+            {
+                WebClient webClient = new WebClient();
+                webClient.Headers.Add("Authorization", "TlBDQVRSQzI=");
+                ServerInfoJson = await webClient.DownloadStringTaskAsync(NorbiServerInfoLink);
+                JArray _ServerArray = new JArray();
+                _ServerArray = JArray.Parse(ServerInfoJson);
+                PlayerCount = 0;
+                for (int i = 0; i < _ServerArray.Count; i++)
+                {
+                    var server = _ServerArray[i];
+                    var onlinePlayers = server["onlinePlayers"];
+                    int PlayersInt = 0;
+                    int.TryParse(onlinePlayers.ToString(), out PlayersInt);
+                    PlayerCount += PlayersInt;
+                }
+
+                if (PlayerCount > 0)
+                {
+                    CraftersOnlineNumber.Text = PlayerCount.ToString();
+                    CraftersOnlineNumber.Visibility = Visibility.Visible;
+                    CraftersOnlineText.Visibility = Visibility.Visible;
+                    OnlineUserpfp.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    CraftersOnlineNumber.Visibility = Visibility.Hidden;
+                    CraftersOnlineText.Visibility = Visibility.Hidden;
+                    OnlineUserpfp.Visibility = Visibility.Hidden;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.failed;
+                ErrorCheckingPlayerCounts = true;
+                MessageBox.Show($"Error checking for server info: {ex}");
+            }
+        }
+        private async Task CheckBuilderCount()
+        {
+            try
+            {
+                
+                WebClient webClient = new WebClient();
+                webClient.Headers.Add("Authorization", "TlBDQVRSQzI=");
+                GameInfoJson = await webClient.DownloadStringTaskAsync(NorbiGameInfoLink);
+                JObject jsonObject = JObject.Parse(GameInfoJson);
+                int BuildersInt = (int)jsonObject["onlinePlayerCount"];
+                BuilderCount = 0;
+                BuilderCount += BuildersInt;
+                BuilderCount -= PlayerCount;
+
+                if (BuilderCount > 0)
+                {
+                    CraftersBuildingNumber.Text = BuilderCount.ToString();
+                    CraftersBuildingNumber.Visibility = Visibility.Visible;
+                    CraftersBuildingText.Visibility = Visibility.Visible;
+                    BuildingUserpfp.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    CraftersBuildingNumber.Visibility = Visibility.Hidden;
+                    CraftersBuildingText.Visibility = Visibility.Hidden;
+                    BuildingUserpfp.Visibility = Visibility.Hidden;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Status = LauncherStatus.failed;
+                ErrorCheckingPlayerCounts = true;
+                MessageBox.Show($"Error checking for server info: {ex}");
+            }
+        }
+
+
+
+
         private void PullSessionTimeFromLink()
         {
             var Localtimezone = TimeZoneInfo.Local;
@@ -318,54 +412,6 @@ namespace GameLauncher
                 MessageBox.Show($"Error installing CRF2 Manager: {ex}");
             }
         }
-
-
-        private void CheckPlayerCount()
-        {
-            try
-            {
-                WebClient webClient = new WebClient();
-                webClient.Headers.Add("Authorization", "TlBDQVRSQzI=");
-                ServerInfoJson = webClient.DownloadString(NorbiServerInfoLink);
-                JArray _ServerArray = new JArray();
-                _ServerArray = JArray.Parse(ServerInfoJson);
-                PlayerCount = 0;
-                for(int i = 0; i < _ServerArray.Count; i++)
-                {
-                    var server = _ServerArray[i];
-                    var onlinePlayers = server["onlinePlayers"];
-                    int PlayersInt = 0;
-                    int.TryParse(onlinePlayers.ToString(), out PlayersInt);
-                    PlayerCount += PlayersInt;
-                }
-                if (PlayerCount > 0)
-                {
-                    CraftersOnlineNumber.Text = PlayerCount.ToString();
-                    //CraftersOnlineNumber.Foreground = new SolidColorBrush(Colors.LightGreen);
-                    CraftersOnlineNumber.Visibility = Visibility.Visible;
-                    CraftersOnlineText.Visibility = Visibility.Visible;
-                    OnlineUserpfp.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    CraftersOnlineNumber.Visibility = Visibility.Hidden;
-                    CraftersOnlineText.Visibility = Visibility.Hidden;
-                    OnlineUserpfp.Visibility = Visibility.Hidden;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                Status = LauncherStatus.failed;
-                MessageBox.Show($"Error checking for server info: {ex}");
-            }
-        }
-
-
-
-
-
-
 
         private void CheckForCRFManagerUpdates()
         {

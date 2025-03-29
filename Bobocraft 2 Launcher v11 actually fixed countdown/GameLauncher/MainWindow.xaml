@@ -46,6 +46,11 @@
         <Image Name="OnlineUserpfp" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="62,57,0,0" Height="40" Width="40" Source="/user-1808597_1280.png"/>
         <TextBlock x:Name="CraftersOnlineText" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="10" Background="#7F000000" Foreground="LightGreen" Margin="15,105,0,0" Text="Crafters Online Now!"/>
         <TextBlock x:Name="CraftersOnlineNumber" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="30" Background="#7F000000" Foreground="LightGreen" Margin="21,57,0,0" Text="0"/>
+
+        <Image Name="BuildingUserpfp" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="62,123,0,0" Height="40" Width="40" Source="/user-orange.png"/>
+        <TextBlock x:Name="CraftersBuildingText" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="10" Background="#7F000000" Foreground="Orange" Margin="15,168,0,0" Text="Crafters Building Now!"/>
+        <TextBlock x:Name="CraftersBuildingNumber" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="30" Background="#7F000000" Foreground="Orange" Margin="21,123,0,0" Text="0"/>
+        
         <Button Name ="DiscordButtonLFP" BorderThickness="0" Click ="DiscordButton_ClickLFP" Background="#00000000" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,102,316,0" Height="20" Width="23" RenderTransformOrigin="-1.39,1.253">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Width="20" Height="20">
                 <Image Source="/discord-mark-blue.png" HorizontalAlignment="Left" VerticalAlignment="Center" Width="20" Height="20" />
