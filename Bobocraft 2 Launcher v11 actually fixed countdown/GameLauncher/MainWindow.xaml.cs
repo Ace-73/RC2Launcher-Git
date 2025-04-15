@@ -308,7 +308,7 @@ namespace GameLauncher
             if (File.Exists(CRF2ManagerExe) && Status == LauncherStatus.ready)
             {
                 ProcessStartInfo CRF2ManagerProcess = new ProcessStartInfo(CRF2ManagerExe);
-                CRF2ManagerProcess.WorkingDirectory = rootPath;
+                CRF2ManagerProcess.WorkingDirectory = launcherPath;
                 Process.Start(CRF2ManagerProcess);
             }
             else if (Status != LauncherStatus.ready)
